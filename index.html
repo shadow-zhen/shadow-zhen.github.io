@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN" ondragstart="return false">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D旋转相册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #000;
+            /* 出掉滚动条 */
+            overflow: hidden; 
+        }
+        #perspective {
+            /* 景深 */
+            perspective: 800px; 
+            -webkit-perspective: 800px;
+            perspective-origin: center;
+            -webkit-perspective-origin: center;
+            
+        }
+        #warp {
+            width: 150px;
+            height: 200px;
+            margin: 150px auto;
+            /* 3D视觉 */
+            transform-style:preserve-3d;
+            -webkit-transform-style:preserve-3d;
+            transform: rotateX(-30deg) rotateY(0deg);
+        }
+        #warp img {
+            /* box-reflect:above;
+            -webkit-box-reflect:above; */
+            position: absolute;
+            width: 150px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="perspective">
+        <div id="warp">
+            <img src="images/1.jpg" alt="">
+            <img src="images/2.jpg" alt="">
+            <img src="images/3.jpg" alt="">
+            <img src="images/4.jpg" alt="">
+            <img src="images/5.jpg" alt="">
+            <img src="images/6.jpg" alt="">
+            <img src="images/7.jpg" alt="">
+            <img src="images/8.jpg" alt="">
+            <img src="images/9.jpg" alt="">
+            <img src="images/10.jpg" alt="">
+            <img src="images/11.jpg" alt="">
+            <img src="images/12.jpg" alt="">
+            <img src="images/13.jpg" alt="">
+        </div>
+    </div>
+
+    <script>
+        var oImg = document.getElementsByTagName("img");
+        // console.log(oImg);
+        var deg = 360/oImg.length;  // 图片单位旋转度数
+
+        /*通过for循环给所有图片设置旋转的度数
+        for (var i = 0;i < oImg.length;i++){
+            console.log(i*deg);
+            oImg[i].style.transform = "rotateY(" + i*deg + "deg)  translateZ(350px)";
+        }*/
+        window.onload = function(){
+            // 使用forEach循环，通过call绑定数组的this，即向数组借用forEach方法
+            [].forEach.call(oImg,function(img,index){
+                img.style.transform = "rotateY(" + index*deg + "deg)  translateZ(350px)";
+                img.style.transition = (oImg.length - index)*0.15 + "s";
+            })
+        }
+        
+         // 拖拽
+        var pervX,pervY,rotateX = -30,rotateY = 0,minusX,minusY;
+        var timer;
+        var oWarp = document.getElementById("warp");
+
+        document.onmousedown = function (event){
+            var event = event || window.event;  //兼容处理
+            // console.log(event)
+            pervX = event.clientX;
+            pervY = event.clientY;
+
+            this.onmousemove = function (event){
+                var event = event || window.event;
+                // 当前移动的位置
+                var newX = event.clientX,
+                    newY = event.clientY;
+                // 差值
+                minusX = newX - pervX;
+                minusY = newY - pervY;
+                
+                rotateX -= minusY*0.2;
+                rotateY += minusY*0.2;
+
+                oWarp.style.transform = "rotateX("+ rotateX +"deg)  rotateY("+ rotateY +"deg)";
+                // 将新值赋值给久值
+                pervX = newX;
+                pervY = newY;
+
+            }
+
+            this.onmouseup = function (event) {
+                var event = event || window.event;
+                this.onmousemove = null;
+                timer = setInterval(function (){
+                    minusX *= 0.95;
+                    minusY *= 0.95;
+
+                    rotateX -= minusY*0.2;
+                    rotateY += minusY*0.2;
+
+                    oWarp.style.transform = "rotateX("+ rotateX +"deg)  rotateY("+ rotateY +"deg)";
+
+                    if(Math.abs(minusX) < 0.1 && Math.abs(minusY) < 0.1){
+                        clearInterval(timer);  //清除定时器
+                    }
+                },13);
+            }
+        }
+        
+    </script>
+</body>
+</html>
